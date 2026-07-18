@@ -89,6 +89,29 @@ Codex 会调用已安装的 [`codex-mobile-token-manager`](.agents/skills/codex-
 
 ## 配置
 
+Codex Mobile 从启动进程的环境变量读取配置，目前不会自动读取 `.env` 文件。
+
+Windows PowerShell 中，可以先设置当前终端的变量，再启动服务：
+
+```powershell
+$env:PORT = "9527"
+$env:CODEX_MOBILE_CWD = "E:\MyProject"
+npm start
+```
+
+这些设置只对当前终端有效。要为当前 Windows 用户持久保存，可以运行：
+
+```powershell
+[Environment]::SetEnvironmentVariable("PORT", "9527", "User")
+[Environment]::SetEnvironmentVariable("CODEX_MOBILE_CWD", "E:\MyProject", "User")
+```
+
+持久设置后需要重新打开终端或重启 Codex。macOS/Linux 可以在启动命令前设置：
+
+```bash
+PORT=9527 CODEX_MOBILE_CWD=/path/to/project npm start
+```
+
 | 环境变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `PORT` | `9526` | HTTP/WebSocket 端口 |
