@@ -26,7 +26,7 @@ npm test
 npm start
 ```
 
-`npm run setup` 会安装全局 `codexm` 命令，同时把 `codex-mobile-token-manager` 安装到当前用户的 `$HOME/.agents/skills`。Codex 通常会自动检测 skill；如果没有立即出现，重启 Codex。
+`npm run setup` 会安装全局 `codexm` 命令，但不会主动安装全局 skill。`codex-mobile-token-manager` 仍随仓库保存在 `.agents/skills` 中；只有确实希望在其他项目的 Codex 对话里使用它时，才显式运行 `npm run skill:install`。Codex 通常会自动检测新安装的 skill；如果没有立即出现，重启 Codex。
 
 用户可能在任意已有项目或普通任务中把 GitHub 链接交给 Codex，因此安装任务的工作目录不等于 CodexMobile 的克隆目录。setup 会输出 CodexMobile 的绝对路径，但不会声称它已经成为 Codex 本地项目。安装完成后，在 Codex 桌面端按 `Ctrl+O` 打开该目录，即可把它加入本地项目。Codex 目前没有公开的项目注册 API，因此安装器不会修改桌面端的内部项目数据库。
 
@@ -67,7 +67,7 @@ codexm stats
 codexm stats phone
 ```
 
-也可以不输入命令，在任意 Codex 对话中直接说：
+在 Codex Mobile 项目中，也可以不输入命令，直接对 Codex 说：
 
 > 列出我的 Codex Mobile token。
 >
@@ -79,7 +79,7 @@ codexm stats phone
 >
 > 查看 `phone` token 的使用统计。
 
-Codex 会调用已安装的 [`codex-mobile-token-manager`](.agents/skills/codex-mobile-token-manager/SKILL.md) skill 完成操作。只有在生成访问地址或二维码时才会显示密钥；删除和清空统计等操作会先确认。运行 `codexm help` 可查看完整命令。
+Codex 会调用仓库附带的 [`codex-mobile-token-manager`](.agents/skills/codex-mobile-token-manager/SKILL.md) skill 完成操作。若已手动运行 `npm run skill:install`，这些对话请求也可从其他项目发起。只有在生成访问地址或二维码时才会显示密钥；删除和清空统计等操作会先确认。运行 `codexm help` 可查看完整命令。
 
 运行中的服务会自动重新加载 token 变更。轮换、停用或删除后，旧连接会在下一次请求时断开。
 
@@ -120,7 +120,7 @@ PORT=9527 CODEX_MOBILE_CWD=/path/to/project npm start
 | `CODEX_MOBILE_DATA_DIR` | 系统用户数据目录 | token、统计、上传和运行态文件目录 |
 | `CODEX_MOBILE_CODEX_PATH` | 自动发现 | `codex` 可执行文件路径 |
 | `CODEX_MOBILE_TERMINAL_QR` | `1` | 设为 `0` 可关闭终端二维码 |
-| `CODEX_MOBILE_SKILLS_DIR` | `$HOME/.agents/skills` | 覆盖用户 skill 安装目录，主要用于测试或自定义环境 |
+| `CODEX_MOBILE_SKILLS_DIR` | `$HOME/.agents/skills` | 运行 `npm run skill:install` 时覆盖 skill 安装目录，主要用于测试或自定义环境 |
 
 为了兼容旧部署，仍支持 `CODEX_MOBILE_TOKEN`、`CODEX_MOBILE_THREAD_FILTER_CWD` 和 `CODEX_MOBILE_TOKEN_SCOPES`。新安装应使用 token CLI；环境变量 token 不会写入本地 token 仓库，也不能热重载。
 

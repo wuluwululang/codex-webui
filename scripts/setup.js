@@ -2,7 +2,6 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { installBundledSkill, resolveUserSkillsRoot } from "../server/skill-install.js";
 import { readTokenStore, resolveDataDir, tokenStorePath } from "../server/token-store.js";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -31,18 +30,11 @@ if (cli.error || cli.status !== 0) {
   console.error((cli.stderr || cli.error?.message || "npm link failed").trim());
   process.exit(1);
 }
-const skill = installBundledSkill({
-  repoRoot,
-  dataDir,
-  skillsRoot: resolveUserSkillsRoot(),
-  force: process.env.CODEX_MOBILE_FORCE_SKILL_INSTALL === "1"
-});
 console.log(`Data directory: ${dataDir}`);
 console.log(`Token store: ${tokenStorePath(dataDir)}`);
 console.log(`Enabled tokens: ${store.tokens.filter((entry) => !entry.disabled).length}`);
 console.log("Command installed: codexm");
-console.log(`Skill ${skill.status}: ${skill.destinationDir}`);
-console.log("Codex detects skill changes automatically. Restart Codex if it does not appear.");
+console.log("Global skill: not installed (run npm run skill:install to opt in).");
 console.log(`Codex project folder: ${repoRoot}`);
 console.log("Setup does not register a Codex local project. Open this folder in the Codex desktop app with Ctrl+O.");
 console.log("Setup complete. Run npm start and scan the terminal QR code.");

@@ -55,7 +55,7 @@ test("refuses to overwrite an unmanaged skill with the same name", () => {
   );
 });
 
-test("setup command installs the user skill automatically", () => {
+test("setup installs codexm without installing the user skill", () => {
   const root = temporaryRoot();
   const dataDir = path.join(root, "data");
   const skillsRoot = path.join(root, "skills");
@@ -72,12 +72,30 @@ test("setup command installs the user skill automatically", () => {
   });
   assert.equal(setup.status, 0, setup.stderr);
   assert.match(setup.stdout, /Command installed: codexm/);
-  assert.match(setup.stdout, /Skill installed:/);
-  assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), true);
+  assert.match(setup.stdout, /Global skill: not installed/);
+  assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), false);
   const commandPath = process.platform === "win32"
     ? path.join(npmPrefix, "codexm.cmd")
     : path.join(npmPrefix, "bin", "codexm");
   assert.equal(existsSync(commandPath), true);
+});
+
+test("skill install command opts into the user skill", () => {
+  const root = temporaryRoot();
+  const dataDir = path.join(root, "data");
+  const skillsRoot = path.join(root, "skills");
+  const install = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "install-skill.js")], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      CODEX_MOBILE_DATA_DIR: dataDir,
+      CODEX_MOBILE_SKILLS_DIR: skillsRoot
+    },
+    encoding: "utf8"
+  });
+  assert.equal(install.status, 0, install.stderr);
+  assert.match(install.stdout, /Skill installed:/);
+  assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), true);
 });
 
 test("codexm runs token commands from another project directory", () => {
