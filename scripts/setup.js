@@ -36,5 +36,5 @@ console.log(`Enabled tokens: ${store.tokens.filter((entry) => !entry.disabled).l
 console.log(`Skill ${skill.status}: ${skill.destinationDir}`);
 console.log("Codex detects skill changes automatically. Restart Codex if it does not appear.");
 console.log(`Codex project folder: ${repoRoot}`);
-console.log("If this folder is not already a local project, open it in the Codex desktop app with Ctrl+O.");
+console.log("Setup does not register a Codex local project. Open this folder in the Codex desktop app with Ctrl+O.");
 console.log("Setup complete. Run npm start and scan the terminal QR code.");

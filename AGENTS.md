@@ -10,6 +10,7 @@ When a user asks to install or set up this repository:
 4. Run `npm test`.
 5. Start with `npm start`, or on Windows use `powershell -ExecutionPolicy Bypass -File scripts/start-codex-mobile.ps1 -Foreground`.
 6. Report the LAN URL and tell the user to scan the terminal QR code. Never commit or broadly repeat its token-bearing URL.
+7. Report the absolute Codex Mobile repository path. Explicitly state that setup does not register a Codex local project, because the installation task may belong to another project. Tell the user to open the reported folder with `Ctrl+O` in the Codex desktop app.
 
 Do not require an OpenAI API key. Codex Mobile uses the local `codex app-server` and its existing Codex sign-in.
 

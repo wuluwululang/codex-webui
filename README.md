@@ -28,7 +28,7 @@ npm start
 
 `npm run setup` 会同时把 `codex-mobile-token-manager` 安装到当前用户的 `$HOME/.agents/skills`。Codex 通常会自动检测；如果没有立即出现，重启 Codex。
 
-如果是把 GitHub 链接交给 Codex 完成安装，仓库文件夹本身就是这次任务的本地项目上下文。如果从普通终端安装，setup 会输出项目文件夹路径；在 Codex 桌面端按 `Ctrl+O` 打开该文件夹，即可把它加入本地项目。Codex 目前没有公开的项目注册 API，因此安装器不会修改桌面端的内部项目数据库。
+用户可能在任意已有项目或普通任务中把 GitHub 链接交给 Codex，因此安装任务的工作目录不等于 CodexMobile 的克隆目录。setup 会输出 CodexMobile 的绝对路径，但不会声称它已经成为 Codex 本地项目。安装完成后，在 Codex 桌面端按 `Ctrl+O` 打开该目录，即可把它加入本地项目。Codex 目前没有公开的项目注册 API，因此安装器不会修改桌面端的内部项目数据库。
 
 手机与电脑连接同一局域网，然后扫描终端二维码。Windows 也可以运行：
 
