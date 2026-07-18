@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Mobile Token Manager"
+  short_description: "Manage access tokens, QR codes, and per-token usage"
+  default_prompt: "Use $codex-mobile-token-manager to create a scoped mobile access token and show its QR code."
