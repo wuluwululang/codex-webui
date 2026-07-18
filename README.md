@@ -26,7 +26,7 @@ npm test
 npm start
 ```
 
-`npm run setup` 会同时把 `codex-mobile-token-manager` 安装到当前用户的 `$HOME/.agents/skills`。Codex 通常会自动检测；如果没有立即出现，重启 Codex。
+`npm run setup` 会安装全局 `codexm` 命令，同时把 `codex-mobile-token-manager` 安装到当前用户的 `$HOME/.agents/skills`。Codex 通常会自动检测 skill；如果没有立即出现，重启 Codex。
 
 用户可能在任意已有项目或普通任务中把 GitHub 链接交给 Codex，因此安装任务的工作目录不等于 CodexMobile 的克隆目录。setup 会输出 CodexMobile 的绝对路径，但不会声称它已经成为 Codex 本地项目。安装完成后，在 Codex 桌面端按 `Ctrl+O` 打开该目录，即可把它加入本地项目。Codex 目前没有公开的项目注册 API，因此安装器不会修改桌面端的内部项目数据库。
 
@@ -42,32 +42,46 @@ powershell -ExecutionPolicy Bypass -File scripts/start-codex-mobile.ps1 -Foregro
 
 Codex Mobile 首次设置时会生成一个本地访问 token。token 是本服务的 bearer 口令，不是 OpenAI API Key。
 
+安装完成后，可以在任意目录使用简短的 `codexm` 命令：
+
 ```powershell
 # 默认不显示明文，只显示短指纹和目录权限
-node scripts/token-manager.js list
+codexm list
 
 # 创建只能访问一个项目目录的 token
-node scripts/token-manager.js add phone --label "My phone" --cwd "E:\MyProject"
+codexm add phone --label "My phone" --cwd "E:\MyProject"
 
 # 一个 token 可允许多个目录
-node scripts/token-manager.js add tablet --cwd "E:\ProjectA" --cwd "E:\ProjectB"
+codexm add tablet --cwd "E:\ProjectA" --cwd "E:\ProjectB"
 
 # 生成完整访问地址与二维码（会显示密钥）
-node scripts/token-manager.js qr phone
+codexm qr phone
 
 # 轮换、停用或删除
-node scripts/token-manager.js rotate phone
-node scripts/token-manager.js disable phone
-node scripts/token-manager.js remove phone --yes
+codexm rotate phone
+codexm disable phone
+codexm remove phone --yes
 
-# 查看每个访问 token 的使用情况
-node scripts/token-manager.js stats
-node scripts/token-manager.js stats phone
+# 查看使用情况
+codexm stats
+codexm stats phone
 ```
 
-运行中的服务会自动重新加载 token 变更。轮换、停用或删除后，旧连接会在下一次请求时断开。
+也可以不输入命令，在任意 Codex 对话中直接说：
 
-仓库同时附带 [`codex-mobile-token-manager`](.agents/skills/codex-mobile-token-manager/SKILL.md) skill。安装后可以在任意项目的 Codex 对话中处理“给项目 A 新增一个手机 token”“显示二维码”“查看 token 使用统计”等自然语言请求。
+> 列出我的 Codex Mobile token。
+>
+> 给 `E:\MyProject` 创建一个名为 `phone` 的手机 token，只允许访问这个目录，并生成二维码。
+>
+> 给 `tablet` token 增加 `E:\ProjectA` 和 `E:\ProjectB` 两个可访问目录。
+>
+> 轮换 / 停用 / 删除 `phone` token。
+>
+> 查看 `phone` token 的使用统计。
+
+Codex 会调用已安装的 [`codex-mobile-token-manager`](.agents/skills/codex-mobile-token-manager/SKILL.md) skill 完成操作。只有在生成访问地址或二维码时才会显示密钥；删除和清空统计等操作会先确认。运行 `codexm help` 可查看完整命令。
+
+运行中的服务会自动重新加载 token 变更。轮换、停用或删除后，旧连接会在下一次请求时断开。
 
 ### 统计口径
 

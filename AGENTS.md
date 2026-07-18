@@ -6,7 +6,7 @@ When a user asks to install or set up this repository:
 
 1. Verify Node.js 20+ and npm are available.
 2. Run `npm install`.
-3. Run `npm run setup` to verify Codex availability, initialize the local token store, and install the token manager skill for the current user.
+3. Run `npm run setup` to verify Codex availability, initialize the local token store, install the global `codexm` command, and install the token manager skill for the current user.
 4. Run `npm test`.
 5. Start with `npm start`, or on Windows use `powershell -ExecutionPolicy Bypass -File scripts/start-codex-mobile.ps1 -Foreground`.
 6. Report the LAN URL and tell the user to scan the terminal QR code. Never commit or broadly repeat its token-bearing URL.

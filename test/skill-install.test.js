@@ -59,16 +59,37 @@ test("setup command installs the user skill automatically", () => {
   const root = temporaryRoot();
   const dataDir = path.join(root, "data");
   const skillsRoot = path.join(root, "skills");
+  const npmPrefix = path.join(root, "npm-prefix");
   const setup = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "setup.js")], {
     cwd: repoRoot,
     env: {
       ...process.env,
       CODEX_MOBILE_DATA_DIR: dataDir,
-      CODEX_MOBILE_SKILLS_DIR: skillsRoot
+      CODEX_MOBILE_SKILLS_DIR: skillsRoot,
+      NPM_CONFIG_PREFIX: npmPrefix
     },
     encoding: "utf8"
   });
   assert.equal(setup.status, 0, setup.stderr);
+  assert.match(setup.stdout, /Command installed: codexm/);
   assert.match(setup.stdout, /Skill installed:/);
   assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), true);
+  const commandPath = process.platform === "win32"
+    ? path.join(npmPrefix, "codexm.cmd")
+    : path.join(npmPrefix, "bin", "codexm");
+  assert.equal(existsSync(commandPath), true);
+});
+
+test("codexm runs token commands from another project directory", () => {
+  const root = temporaryRoot();
+  const tokenDataDir = path.join(root, "token-data");
+  const invoked = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "codexm.js"), "list", "--json"], {
+    cwd: root,
+    env: { ...process.env, CODEX_MOBILE_DATA_DIR: tokenDataDir },
+    encoding: "utf8"
+  });
+  assert.equal(invoked.status, 0, invoked.stderr);
+  const tokens = JSON.parse(invoked.stdout);
+  assert.equal(tokens.length, 1);
+  assert.equal(tokens[0].id, "default");
 });

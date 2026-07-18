@@ -19,6 +19,7 @@ import { readUsageStore, resetUsage } from "../server/usage-store.js";
 
 const args = process.argv.slice(2);
 const command = args.shift() || "help";
+const commandName = String(process.env.CODEX_MOBILE_COMMAND || "node scripts/token-manager.js");
 const dataDir = resolveDataDir();
 
 try {
@@ -39,7 +40,7 @@ async function run(name, values) {
   if (name === "qr") return showToken(values, true);
   if (name === "stats") return showStats(values);
   if (name === "reset-stats") return clearStats(values);
-  throw new Error(`Unknown command: ${name}. Run \"node scripts/token-manager.js help\".`);
+  throw new Error(`Unknown command: ${name}. Run \"${commandName} help\".`);
 }
 
 function listTokens(values) {
@@ -237,15 +238,15 @@ function printHelp() {
   console.log(`Codex Mobile token manager
 
 Usage:
-  node scripts/token-manager.js list [--json]
-  node scripts/token-manager.js add <id> [--label <text>] [--cwd <path>]...
-  node scripts/token-manager.js rotate <id>
-  node scripts/token-manager.js remove <id> --yes
-  node scripts/token-manager.js enable|disable <id>
-  node scripts/token-manager.js show <id> [--host http://host:port]
-  node scripts/token-manager.js qr <id> [--host http://host:port]
-  node scripts/token-manager.js stats [id] [--json]
-  node scripts/token-manager.js reset-stats [id] --yes
+  ${commandName} list [--json]
+  ${commandName} add <id> [--label <text>] [--cwd <path>]...
+  ${commandName} rotate <id>
+  ${commandName} remove <id> --yes
+  ${commandName} enable|disable <id>
+  ${commandName} show <id> [--host http://host:port]
+  ${commandName} qr <id> [--host http://host:port]
+  ${commandName} stats [id] [--json]
+  ${commandName} reset-stats [id] --yes
 
 Token secrets live only in: ${tokenStorePath(dataDir)}`);
 }
