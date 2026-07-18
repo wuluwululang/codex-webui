@@ -5,7 +5,13 @@ description: Manage Codex Mobile access tokens, folder scopes, LAN access URLs, 
 
 # Codex Mobile Token Manager
 
-Run all commands from the Codex Mobile repository root. Use the repository CLI instead of editing the token store directly.
+Run the bundled wrapper with Node.js. Resolve `<skill-dir>` to the directory containing this `SKILL.md`:
+
+```text
+node <skill-dir>/scripts/token.js <command> [arguments]
+```
+
+The wrapper locates the installed Codex Mobile repository, so it works from any project directory. Do not edit `tokens.json` directly.
 
 ## Safety
 
@@ -17,19 +23,16 @@ Run all commands from the Codex Mobile repository root. Use the repository CLI i
 
 ## Commands
 
-First ensure dependencies exist with `npm install` when `node_modules` is absent.
-
 ```text
-npm run token -- list [--json]
-npm run token -- add <id> [--label <text>] [--cwd <absolute-path>]...
-npm run token -- rotate <id>
-npm run token -- remove <id> --yes
-npm run token -- enable <id>
-npm run token -- disable <id>
-npm run token -- show <id> [--host http://host:port]
-npm run token -- qr <id> [--host http://host:port]
-npm run token -- stats [id] [--json]
-npm run token -- reset-stats [id] --yes
+node <skill-dir>/scripts/token.js list [--json]
+node <skill-dir>/scripts/token.js add <id> [--label <text>] [--cwd <absolute-path>]...
+node <skill-dir>/scripts/token.js rotate <id>
+node <skill-dir>/scripts/token.js remove <id> --yes
+node <skill-dir>/scripts/token.js enable|disable <id>
+node <skill-dir>/scripts/token.js show <id> [--host http://host:port]
+node <skill-dir>/scripts/token.js qr <id> [--host http://host:port]
+node <skill-dir>/scripts/token.js stats [id] [--json]
+node <skill-dir>/scripts/token.js reset-stats [id] --yes
 ```
 
 Use one `--cwd` per allowed project. Resolve user-provided paths before adding the token. An omitted `--cwd` grants access to all Codex sessions visible to the host account, so call that out before creating an unrestricted token.
@@ -38,4 +41,4 @@ Token changes reload automatically in a running server. After `add` or `rotate`,
 
 ## Verification
 
-After a mutation, run `npm run token -- list` and confirm the expected id, status, fingerprint, and folder scope. Do not verify by opening or echoing the raw token store.
+After a mutation, run `node <skill-dir>/scripts/token.js list` and confirm the expected id, status, fingerprint, and folder scope. Do not verify by opening or echoing the raw token store.

@@ -39,7 +39,7 @@ async function run(name, values) {
   if (name === "qr") return showToken(values, true);
   if (name === "stats") return showStats(values);
   if (name === "reset-stats") return clearStats(values);
-  throw new Error(`Unknown command: ${name}. Run \"npm run token -- help\".`);
+  throw new Error(`Unknown command: ${name}. Run \"node scripts/token-manager.js help\".`);
 }
 
 function listTokens(values) {
@@ -237,15 +237,15 @@ function printHelp() {
   console.log(`Codex Mobile token manager
 
 Usage:
-  npm run token -- list [--json]
-  npm run token -- add <id> [--label <text>] [--cwd <path>]...
-  npm run token -- rotate <id>
-  npm run token -- remove <id> --yes
-  npm run token -- enable|disable <id>
-  npm run token -- show <id> [--host http://host:port]
-  npm run token -- qr <id> [--host http://host:port]
-  npm run token -- stats [id] [--json]
-  npm run token -- reset-stats [id] --yes
+  node scripts/token-manager.js list [--json]
+  node scripts/token-manager.js add <id> [--label <text>] [--cwd <path>]...
+  node scripts/token-manager.js rotate <id>
+  node scripts/token-manager.js remove <id> --yes
+  node scripts/token-manager.js enable|disable <id>
+  node scripts/token-manager.js show <id> [--host http://host:port]
+  node scripts/token-manager.js qr <id> [--host http://host:port]
+  node scripts/token-manager.js stats [id] [--json]
+  node scripts/token-manager.js reset-stats [id] --yes
 
 Token secrets live only in: ${tokenStorePath(dataDir)}`);
 }
