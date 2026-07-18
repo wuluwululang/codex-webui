@@ -54,3 +54,21 @@ test("refuses to overwrite an unmanaged skill with the same name", () => {
     /unmanaged codex-mobile-token-manager skill already exists/
   );
 });
+
+test("setup command installs the user skill automatically", () => {
+  const root = temporaryRoot();
+  const dataDir = path.join(root, "data");
+  const skillsRoot = path.join(root, "skills");
+  const setup = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "setup.js")], {
+    cwd: repoRoot,
+    env: {
+      ...process.env,
+      CODEX_MOBILE_DATA_DIR: dataDir,
+      CODEX_MOBILE_SKILLS_DIR: skillsRoot
+    },
+    encoding: "utf8"
+  });
+  assert.equal(setup.status, 0, setup.stderr);
+  assert.match(setup.stdout, /Skill installed:/);
+  assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), true);
+});
