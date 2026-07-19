@@ -902,6 +902,7 @@ function uploadDirForScope(scope) {
 
 function isLocalFileAccessible(scope, requestedPath) {
   if (!isLocalImagePath(requestedPath)) return false;
+  if (isCodexClipboardImagePath(requestedPath)) return true;
   if (!hasThreadFilter(scope)) return true;
   const roots = [
     rootDir,
@@ -912,6 +913,14 @@ function isLocalFileAccessible(scope, requestedPath) {
     .map((entry) => normalizeLocalPath(entry || ""))
     .filter(Boolean);
   return roots.some((root) => isPathInside(root, requestedPath));
+}
+
+function isCodexClipboardImagePath(requestedPath) {
+  const normalizedPath = normalizeLocalPath(requestedPath || "");
+  const tempRoot = normalizeLocalPath(os.tmpdir());
+  if (!normalizedPath || !tempRoot || path.dirname(normalizedPath) !== tempRoot) return false;
+  return /^codex-clipboard-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(png|jpe?g|webp|gif)$/i
+    .test(path.basename(normalizedPath));
 }
 
 function isLocalImagePath(value) {

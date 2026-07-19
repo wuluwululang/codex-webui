@@ -37,6 +37,7 @@ const state = {
   messages: [],
   models: [],
   config: null,
+  threadFilterCwds: [],
   connected: false,
   account: null,
   urlThreadId: ""
@@ -109,6 +110,7 @@ async function boot() {
 
   const infoUrl = state.token ? `/api/info?token=${encodeURIComponent(state.token)}` : "/api/info";
   const info = await fetch(infoUrl).then((res) => res.json()).catch(() => null);
+  state.threadFilterCwds = scopeCwdsFrom(info);
   if (info?.defaultCwd) {
     els.cwdInput.value = info.defaultCwd;
   }
@@ -235,10 +237,9 @@ function bindUi() {
   setupImageComposer();
   setupMobileViewport();
   setupBackButtonGuard();
-  setupUnloadGuard();
   updateFullscreenToggle();
   els.newThread.addEventListener("click", createThread);
-  els.refreshThreads.addEventListener("click", refreshAll);
+  els.refreshThreads?.addEventListener("click", refreshAll);
   els.resumeStatus?.addEventListener("click", async () => {
     try {
       await resumeCurrentThread();
@@ -532,23 +533,6 @@ function setupBackButtonGuard() {
   window.addEventListener("pointerdown", armBackButtonGuardFromUserGesture, { capture: true, passive: true });
   window.addEventListener("touchstart", armBackButtonGuardFromUserGesture, { capture: true, passive: true });
   window.addEventListener("keydown", armBackButtonGuardFromUserGesture, { capture: true });
-}
-
-function setupUnloadGuard() {
-  window.addEventListener("beforeunload", (event) => {
-    if (!shouldGuardUnload()) return;
-    event.preventDefault();
-    event.returnValue = "";
-  });
-}
-
-function shouldGuardUnload() {
-  if (!state.token || !isLikelyMobileViewport()) return false;
-  return Boolean(state.currentThread?.id || els.promptInput?.value || state.pendingImages.length);
-}
-
-function isLikelyMobileViewport() {
-  return window.matchMedia?.("(max-width: 900px)").matches || navigator.maxTouchPoints > 1;
 }
 
 function setupBackSentinel() {
@@ -1073,15 +1057,25 @@ function mergeCurrentThreadIntoList(threads) {
 
 function renderProjectOptions() {
   const previous = els.projectSelect.value;
-  const groups = groupThreadsByProject(state.threads)
-    .filter(isProjectGroup)
+  const groupsByKey = new Map(
+    groupThreadsByProject(state.threads)
+      .filter(isProjectGroup)
+      .map((group) => [group.key, group])
+  );
+  for (const cwd of state.threadFilterCwds) {
+    const project = projectFromCwd(cwd);
+    if (!groupsByKey.has(project.key)) groupsByKey.set(project.key, { ...project, threads: [] });
+  }
+  const groups = [...groupsByKey.values()]
     .sort((a, b) => a.name.localeCompare(b.name, currentLocale()));
 
   els.projectSelect.innerHTML = "";
-  const none = document.createElement("option");
-  none.value = "";
-  none.textContent = t("project.none");
-  els.projectSelect.append(none);
+  if (!hasScopedToken()) {
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = t("project.none");
+    els.projectSelect.append(none);
+  }
 
   for (const group of groups) {
     const option = document.createElement("option");
@@ -1094,13 +1088,16 @@ function renderProjectOptions() {
     els.projectSelect.value = previous;
   } else if (state.currentThread?.cwd) {
     setProjectSelection(state.currentThread.cwd);
+  } else if (hasScopedToken()) {
+    setProjectSelection(preferredScopedCwd());
   }
 }
 
 function setProjectSelection(cwd) {
-  const value = cwd || "";
-  if (value && !isProjectGroup(projectFromCwd(value))) {
-    els.projectSelect.value = "";
+  let value = cwd || preferredScopedCwd();
+  const isScopeRoot = state.threadFilterCwds.some((root) => samePath(root, value));
+  if (value && !isScopeRoot && !isProjectGroup(projectFromCwd(value))) {
+    els.projectSelect.value = preferredScopedCwd();
     return;
   }
   if (value && ![...els.projectSelect.options].some((option) => option.value === value)) {
@@ -1292,7 +1289,8 @@ function normalizeUnixSeconds(value) {
 }
 
 function createThread() {
-  const cwd = els.projectSelect.value;
+  const cwd = els.projectSelect.value || preferredScopedCwd();
+  if (cwd) setProjectSelection(cwd);
   updateThreadUrl("");
   state.currentThread = {
     draft: true,
@@ -1635,7 +1633,10 @@ function threadSettings() {
     approvalPolicy: els.approvalSelect.value,
     sandbox: els.sandboxSelect.value
   };
-  const cwd = state.currentThread?.cwd || els.projectSelect.value || defaultDirectConversationCwd();
+  const cwd = state.currentThread?.cwd
+    || els.projectSelect.value
+    || preferredScopedCwd()
+    || defaultDirectConversationCwd();
   params.cwd = cwd;
   if (els.modelSelect.value) params.model = els.modelSelect.value;
   params.effort = els.reasoningSelect.value || "";
@@ -1790,7 +1791,7 @@ function messageFromItem(item) {
     };
   }
   if (item.type === "agentMessage") {
-    return { role: "assistant", id: item.id, text: item.text || "" };
+    return { role: "assistant", id: item.id, text: cleanAssistantText(item.text) };
   }
   if (item.type === "imageGeneration") {
     const image = normalizeImageReference(item);
@@ -1922,6 +1923,39 @@ function cleanUserText(text) {
   return next;
 }
 
+function cleanAssistantText(text) {
+  const source = String(text || "").trim();
+  const heartbeatResult = parseAutomationHeartbeatResult(source);
+  if (!heartbeatResult) return source;
+  return heartbeatResult.visibleText || heartbeatResult.message;
+}
+
+function parseAutomationHeartbeatResult(text) {
+  const source = String(text || "").trim();
+  const match = source.match(/(?:^|\n)[ \t]*(<heartbeat(?:\s[^>]*)?>[\s\S]*?<\/heartbeat>)[ \t]*$/i);
+  if (!match) return null;
+
+  const documentNode = new DOMParser().parseFromString(match[1], "application/xml");
+  if (documentNode.querySelector("parsererror")) return null;
+  const root = documentNode.documentElement;
+  if (root?.localName?.toLowerCase() !== "heartbeat") return null;
+
+  const children = [...root.children];
+  const childText = (name) => children
+    .find((child) => child.localName?.toLowerCase() === name)
+    ?.textContent?.trim() || "";
+  const automationId = childText("automation_id");
+  const decision = childText("decision");
+  if (!automationId || !decision) return null;
+
+  return {
+    automationId,
+    decision,
+    message: childText("message"),
+    visibleText: source.slice(0, match.index).trim()
+  };
+}
+
 function parseAutomationHeartbeat(text) {
   const source = String(text || "").trim();
   if (!/^<heartbeat[>\s]/i.test(source)) return null;
@@ -1948,7 +1982,9 @@ function inputToText(item) {
 
 function handleMessage(message, rawBytes = 0) {
   if (message.type === "hello") {
+    state.threadFilterCwds = scopeCwdsFrom(message);
     if (!els.cwdInput.value) els.cwdInput.value = message.defaultCwd || "";
+    renderProjectOptions();
     renderApprovals(message.pendingServerRequests || []);
     return;
   }
@@ -3088,9 +3124,18 @@ function renderImageLoadError(src) {
   error.className = "image-load-error";
   error.innerHTML = `
     <strong>${escapeHtml(t("image.loadFailed"))}</strong>
-    <small>${escapeHtml(src)}</small>
+    <small>${escapeHtml(imageErrorLabel(src))}</small>
   `;
   return error;
+}
+
+function imageErrorLabel(src) {
+  try {
+    const url = new URL(src, window.location.href);
+    return url.searchParams.get("path") || redactImageUrl(src);
+  } catch {
+    return redactImageUrl(src);
+  }
 }
 
 function openImageViewer(src) {
@@ -3359,6 +3404,28 @@ function defaultDirectConversationCwd() {
   const today = new Date().toISOString().slice(0, 10);
   const slash = documentsDir.includes("\\") ? "\\" : "/";
   return [documentsDir, "Codex", today, "mobile-chat"].join(slash);
+}
+
+function scopeCwdsFrom(source) {
+  const values = Array.isArray(source?.threadFilterCwds)
+    ? source.threadFilterCwds
+    : source?.threadFilterCwd
+      ? [source.threadFilterCwd]
+      : [];
+  return [...new Map(
+    values
+      .map((value) => String(value || "").trim())
+      .filter(Boolean)
+      .map((value) => [normalizePath(value), value])
+  ).values()];
+}
+
+function hasScopedToken() {
+  return state.threadFilterCwds.length > 0;
+}
+
+function preferredScopedCwd() {
+  return state.threadFilterCwds[0] || "";
 }
 
 function isProjectGroup(group) {
