@@ -1,18 +1,21 @@
 # Codex WebUI
 
-在电脑上运行 Codex，在手机或平板浏览器里继续同一批会话。Codex WebUI 通过本机 `codex app-server` 工作，不需要单独填写 OpenAI API Key。
+[简体中文](README.md) | [English](README_EN.md)
 
-启动后会打印带访问口令的局域网地址和二维码。同一 Wi-Fi 下的移动设备扫码即可访问。
+Codex WebUI 是一个面向 OpenAI Codex 的本地自托管 Web 界面。它通过本机 [`codex app-server`](https://github.com/openai/codex/tree/main/codex-rs/app-server) 复用已登录的 Codex 账号，让手机、平板和电脑在同一局域网内创建、查看和继续 Codex 会话，无需单独填写 OpenAI API Key。支持中英文界面、响应式桌面/移动布局和按项目目录限制的访问 token。
 
-## 让 Codex 帮你安装
+## 安装
+
+### 让 Codex 帮你安装（推荐）
 
 把本仓库的 GitHub 链接交给 Codex，然后发送：
 
 > 安装这个项目，运行测试并启动服务；最后告诉我怎样用手机扫码连接。
 
-仓库里的 `AGENTS.md` 会告诉 Codex完成安装、验证和安全初始化所需的步骤。
+仓库里的 `AGENTS.md` 会告诉 Codex 完成安装、验证和安全初始化所需的步骤。
 
-## 手动安装
+<details>
+<summary><strong>手动安装</strong></summary>
 
 要求：
 
@@ -26,23 +29,49 @@ npm test
 npm start
 ```
 
-`npm run setup` 会安装全局 `codex-webui` 命令，但不会主动安装全局 skill。`codex-webui-token-manager` 仍随仓库保存在 `.agents/skills` 中；只有确实希望在其他项目的 Codex 对话里使用它时，才显式运行 `npm run skill:install`。Codex 通常会自动检测新安装的 skill；如果没有立即出现，重启 Codex。
+`npm run setup` 会安装全局 `codex-webui` 命令。启动后，让手机与电脑连接同一局域网并扫描终端二维码；Windows 防火墙询问时请选择允许专用网络访问。
 
-用户可能在任意已有项目或普通任务中把 GitHub 链接交给 Codex，因此安装任务的工作目录不等于 Codex WebUI 的克隆目录。setup 会输出 Codex WebUI 的绝对路径，但不会声称它已经成为 Codex 本地项目。安装完成后，在 Codex 桌面端按 `Ctrl+O` 打开该目录，即可把它加入本地项目。Codex 目前没有公开的项目注册 API，因此安装器不会修改桌面端的内部项目数据库。
+</details>
 
-手机与电脑连接同一局域网，然后扫描终端二维码。Windows 也可以运行：
+## 使用
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/start-codex-webui.ps1 -Foreground
-```
+| 桌面端 | 移动端 |
+| :---: | :---: |
+| <img src="docs/images/codex-webui-desktop-zh.png" alt="Codex WebUI 中文桌面端" width="720"> | <img src="docs/images/codex-webui-mobile-zh.png" alt="Codex WebUI 中文移动端" width="166"> |
 
-如果 Windows 防火墙询问是否允许 Node.js 访问专用网络，请选择允许；不要把服务直接暴露到公网。
+> [!WARNING]
+> 访问链接和二维码相当于远程控制凭证。泄露后，他人可能读取会话、启动任务并操作 token 授权目录中的文件。请勿公开分享；怀疑泄露时立即停用或轮换对应 token。
 
-## Token 管理
+### 常见问题
 
-Codex WebUI 首次设置时会生成一个本地访问 token。token 是本服务的 bearer 口令，不是 OpenAI API Key。
+- **需要 OpenAI API Key 吗？** 不需要，Codex WebUI 使用本机已有的 Codex 登录。
+- **能限制访问范围吗？** 可以，每个 token 可绑定一个或多个项目目录。
+- **支持哪些设备？** 支持同一局域网内的桌面和移动浏览器。
 
-安装完成后，可以在任意目录使用 `codex-webui` 命令：
+### Token 管理
+
+Codex WebUI 首次设置时会生成一个本地访问 token。推荐直接通过 Codex 管理：
+
+1. 安装完成后，在 Codex 桌面端按 `Ctrl+O` 打开安装目录，将 Codex WebUI 添加为项目。
+2. 在该项目下新建一个会话。
+3. 将下面任一消息发送给 Codex：
+
+> 列出我的 Codex WebUI token。
+>
+> 给 `E:\MyProject` 创建一个名为 `phone` 的手机 token，只允许访问这个目录，并生成二维码。
+>
+> 给 `tablet` token 增加 `E:\ProjectA` 和 `E:\ProjectB` 两个可访问目录。
+>
+> 生成 `phone` 的手机二维码或访问链接。
+>
+> 轮换 / 停用 / 删除 `phone` token。
+>
+> 查看 `phone` token 的使用统计。
+
+<details>
+<summary><strong>命令行管理（可选）</strong></summary>
+
+安装完成后，也可以在任意目录使用 `codex-webui` 命令：
 
 ```powershell
 # 默认不显示明文，只显示短指纹和目录权限
@@ -70,76 +99,11 @@ codex-webui stats
 codex-webui stats phone
 ```
 
-在 Codex WebUI 项目中，也可以不输入命令，直接对 Codex 说：
+运行 `codex-webui help` 可查看完整命令。
 
-> 列出我的 Codex WebUI token。
->
-> 给 `E:\MyProject` 创建一个名为 `phone` 的手机 token，只允许访问这个目录，并生成二维码。
->
-> 给 `tablet` token 增加 `E:\ProjectA` 和 `E:\ProjectB` 两个可访问目录。
->
-> 轮换 / 停用 / 删除 `phone` token。
->
-> 查看 `phone` token 的使用统计。
-
-Codex 会调用仓库附带的 [`codex-webui-token-manager`](.agents/skills/codex-webui-token-manager/SKILL.md) skill 完成操作。若已手动运行 `npm run skill:install`，这些对话请求也可从其他项目发起。只有在生成访问地址或二维码时才会显示密钥；删除和清空统计等操作会先确认。运行 `codex-webui help` 可查看完整命令。
+</details>
 
 运行中的服务会自动重新加载 token 变更。轮换、停用或删除后，旧连接会在下一次请求时断开。
-
-### 统计口径
-
-统计记录每个 Codex WebUI 访问 token 的 HTTP 请求、WebSocket 连接、RPC 请求与错误、上下行 WebSocket 字节、最近使用时间和 RPC 方法分布。它不是 OpenAI 模型 token 数或账单统计；Codex 账号的限额仍由 Codex 自身管理。
-
-## 配置
-
-Codex WebUI 从启动进程的环境变量读取配置，目前不会自动读取 `.env` 文件。
-
-Windows PowerShell 中，可以先设置当前终端的变量，再启动服务：
-
-```powershell
-$env:PORT = "9527"
-$env:CODEX_WEBUI_CWD = "E:\MyProject"
-npm start
-```
-
-这些设置只对当前终端有效。要为当前 Windows 用户持久保存，可以运行：
-
-```powershell
-[Environment]::SetEnvironmentVariable("PORT", "9527", "User")
-[Environment]::SetEnvironmentVariable("CODEX_WEBUI_CWD", "E:\MyProject", "User")
-```
-
-持久设置后需要重新打开终端或重启 Codex。macOS/Linux 可以在启动命令前设置：
-
-```bash
-PORT=9527 CODEX_WEBUI_CWD=/path/to/project npm start
-```
-
-| 环境变量 | 默认值 | 说明 |
-| --- | --- | --- |
-| `PORT` | `9526` | HTTP/WebSocket 端口 |
-| `HOST` | `0.0.0.0` | 监听地址 |
-| `CODEX_WEBUI_CWD` | 仓库目录 | 新会话默认目录 |
-| `CODEX_WEBUI_DATA_DIR` | 系统用户数据目录 | token、统计、上传和运行态文件目录 |
-| `CODEX_WEBUI_CODEX_PATH` | 自动发现 | `codex` 可执行文件路径 |
-| `CODEX_WEBUI_TERMINAL_QR` | `1` | 设为 `0` 可关闭终端二维码 |
-| `CODEX_WEBUI_SKILLS_DIR` | `$HOME/.agents/skills` | 运行 `npm run skill:install` 时覆盖 skill 安装目录，主要用于测试或自定义环境 |
-
-还支持 `CODEX_WEBUI_TOKEN`、`CODEX_WEBUI_THREAD_FILTER_CWD` 和 `CODEX_WEBUI_TOKEN_SCOPES`。新安装应使用 token CLI；环境变量 token 不会写入本地 token 仓库，也不能热重载。
-
-默认数据目录：
-
-- Windows：`%LOCALAPPDATA%\CodexWebUI`
-- Linux/macOS：`$XDG_DATA_HOME/codex-webui`，未设置时为 `~/.local/share/codex-webui`
-
-二维码 SVG 保存在数据目录的 `qr/` 中。自动选址会过滤回环、链路本地及 `198.18.0.0/15` 隧道测试地址，并优先使用私有局域网 IPv4；多网卡环境仍可通过 `--host` 覆盖。token、二维码和完整访问 URL 都应按密码处理，禁止提交到 Git。
-
-## 安全边界
-
-- 服务可以代表已登录的本机 Codex 账号读取会话、启动任务，并在授权范围内操作文件。
-- 请优先为每台设备创建独立、限定目录的 token，设备丢失时立即停用或轮换。
-- 局域网 HTTP 不提供传输加密；不要在不可信 Wi-Fi 使用，也不要做公网端口映射。公网部署需要由可信反向代理提供 HTTPS、访问控制和限流。
-- token 存储位于本机数据目录，文件权限会尽力限制为当前用户，但仍应保护该操作系统账户。
 
 ## 开发
 

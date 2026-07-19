@@ -190,7 +190,7 @@ const dictionaries = {
     "thread.connectTitle": "Connect conversation",
     "thread.connectedTitle": "Conversation connected",
     "thread.connecting": "Connecting...",
-    "thread.connected": "Connected",
+    "thread.connected": "connected",
     "thread.untitled": "Untitled conversation",
     "thread.noThreads": "No conversations",
     "thread.showMore": "Show more",

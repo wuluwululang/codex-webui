@@ -1,8 +1,27 @@
 {
   "name": "codex-webui",
   "version": "0.1.0",
+  "description": "Self-hosted LAN web interface for OpenAI Codex with mobile access and directory-scoped tokens",
   "private": true,
   "license": "MIT",
+  "keywords": [
+    "openai-codex",
+    "codex",
+    "webui",
+    "self-hosted",
+    "mobile",
+    "local-first",
+    "lan",
+    "remote-access"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wuluwulang/codex-webui.git"
+  },
+  "homepage": "https://github.com/wuluwulang/codex-webui#readme",
+  "bugs": {
+    "url": "https://github.com/wuluwulang/codex-webui/issues"
+  },
   "engines": {
     "node": ">=20"
   },

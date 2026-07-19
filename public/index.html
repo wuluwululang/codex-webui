@@ -15,12 +15,14 @@
             <div class="brand">Codex WebUI</div>
             <div class="connection" id="connection" data-i18n="connection.connecting">连接中</div>
           </div>
-          <select class="theme-select" id="themeSelect" aria-label="主题" data-i18n-aria-label="theme.label">
-            <option value="system" data-i18n="theme.system">跟随系统</option>
-            <option value="light" data-i18n="theme.light">日间</option>
-            <option value="dark" data-i18n="theme.dark">夜间</option>
-          </select>
-          <button class="icon-button mobile-only" id="closeSidebar" aria-label="关闭会话列表" data-i18n-aria-label="sidebar.close">×</button>
+          <div class="brand-actions">
+            <select class="theme-select" id="themeSelect" aria-label="主题" data-i18n-aria-label="theme.label">
+              <option value="system" data-i18n="theme.system">跟随系统</option>
+              <option value="light" data-i18n="theme.light">日间</option>
+              <option value="dark" data-i18n="theme.dark">夜间</option>
+            </select>
+            <button class="icon-button mobile-only" id="closeSidebar" aria-label="关闭会话列表" data-i18n-aria-label="sidebar.close">×</button>
+          </div>
         </div>
 
         <button class="primary-action" id="newThread" data-i18n="thread.new">新会话</button>
