@@ -57,6 +57,9 @@ codex-webui add tablet --cwd "E:\ProjectA" --cwd "E:\ProjectB"
 # 生成完整访问地址与二维码（会显示密钥）
 codex-webui qr phone
 
+# 多网卡环境可显式指定手机能够访问的局域网地址
+codex-webui qr phone --host http://192.168.1.20:9526
+
 # 轮换、停用或删除
 codex-webui rotate phone
 codex-webui disable phone
@@ -129,7 +132,7 @@ PORT=9527 CODEX_WEBUI_CWD=/path/to/project npm start
 - Windows：`%LOCALAPPDATA%\CodexWebUI`
 - Linux/macOS：`$XDG_DATA_HOME/codex-webui`，未设置时为 `~/.local/share/codex-webui`
 
-二维码 SVG 保存在数据目录的 `qr/` 中。token、二维码和完整访问 URL 都应按密码处理，禁止提交到 Git。
+二维码 SVG 保存在数据目录的 `qr/` 中。自动选址会过滤回环、链路本地及 `198.18.0.0/15` 隧道测试地址，并优先使用私有局域网 IPv4；多网卡环境仍可通过 `--host` 覆盖。token、二维码和完整访问 URL 都应按密码处理，禁止提交到 Git。
 
 ## 安全边界
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import os from "node:os";
 import path from "node:path";
 import { mkdir } from "node:fs/promises";
 import QRCode from "qrcode";
@@ -16,6 +15,7 @@ import {
   writeTokenStore
 } from "../server/token-store.js";
 import { readUsageStore, resetUsage } from "../server/usage-store.js";
+import { getPrimaryLanUrl } from "../server/network-urls.js";
 
 const args = process.argv.slice(2);
 const command = args.shift() || "help";
@@ -185,12 +185,7 @@ function accessUrl(record, explicitHost = "") {
 
 function firstLanUrl() {
   const port = Number(process.env.PORT || 9526);
-  for (const entries of Object.values(os.networkInterfaces())) {
-    for (const entry of entries || []) {
-      if (entry.family === "IPv4" && !entry.internal) return `http://${entry.address}:${port}`;
-    }
-  }
-  return `http://localhost:${port}`;
+  return getPrimaryLanUrl(port);
 }
 
 function requiredPosition(values, label) {

@@ -15,7 +15,7 @@
     "setup": "node scripts/setup.js",
     "skill:install": "node scripts/install-skill.js",
     "token": "node scripts/token-manager.js",
-    "check": "node --check public/app.js && node --check server/index.js && node --check server/skill-install.js && node --check scripts/codex-webui.js && node --check scripts/token-manager.js && node --check scripts/setup.js && node --check scripts/install-skill.js && node --check .agents/skills/codex-webui-token-manager/scripts/token.js",
+    "check": "node --check public/app.js && node --check server/index.js && node --check server/network-urls.js && node --check server/skill-install.js && node --check scripts/codex-webui.js && node --check scripts/token-manager.js && node --check scripts/setup.js && node --check scripts/install-skill.js && node --check .agents/skills/codex-webui-token-manager/scripts/token.js",
     "test": "node --test"
   },
   "dependencies": {

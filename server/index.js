@@ -11,6 +11,7 @@ import QRCode from "qrcode";
 import { WebSocketServer } from "ws";
 import { readTokenStore, resolveDataDir, tokenStorePath } from "./token-store.js";
 import { UsageTracker } from "./usage-store.js";
+import { getLanUrls } from "./network-urls.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1264,18 +1265,6 @@ function imageMimeFromBase64(value) {
   if (value.startsWith("R0lGOD")) return "image/gif";
   if (value.startsWith("UklGR")) return "image/webp";
   return "";
-}
-
-function getLanUrls(port) {
-  const urls = [];
-  for (const entries of Object.values(os.networkInterfaces())) {
-    for (const entry of entries || []) {
-      if (entry.family === "IPv4" && !entry.internal) {
-        urls.push(`http://${entry.address}:${port}`);
-      }
-    }
-  }
-  return urls.length ? urls : [`http://localhost:${port}`];
 }
 
 function normalizeLocalPath(value) {
