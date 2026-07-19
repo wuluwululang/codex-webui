@@ -3,9 +3,9 @@ import { currentLocale, initI18n, t } from "./i18n.js";
 const byteEncoder = new TextEncoder();
 const TURN_PAGE_LIMIT = 6;
 const TURN_ITEMS_VIEW = "full";
-const THEME_STORAGE_KEY = "codex-mobile-theme";
-const LAST_THREAD_STORAGE_KEY = "codex-mobile-last-thread-id";
-const TOKEN_STORAGE_KEY = "codex-mobile-access-token";
+const THEME_STORAGE_KEY = "codex-webui-theme";
+const LAST_THREAD_STORAGE_KEY = "codex-webui-last-thread-id";
+const TOKEN_STORAGE_KEY = "codex-webui-access-token";
 const THREAD_URL_PARAM = "thread";
 const IMAGE_UPLOAD_TARGET_BYTES = 1400 * 1024;
 const IMAGE_UPLOAD_MAX_EDGE = 1800;
@@ -52,7 +52,7 @@ let backGuardHandling = false;
 let backGuardArmedAt = 0;
 let backSentinels = [];
 let backSentinelReopening = false;
-const BACK_GUARD_HASH_PREFIX = "codex-mobile-stay-";
+const BACK_GUARD_HASH_PREFIX = "codex-webui-stay-";
 const BACK_SENTINEL_COUNT = 4;
 
 const els = {
@@ -157,7 +157,7 @@ function connect() {
   state.ws = ws;
   let opened = false;
   const startedAt = performance.now();
-  console.info("[codex-mobile:ws]", {
+  console.info("[codex-webui:ws]", {
     event: "connecting",
     url: `${protocol}//${window.location.host}/ws?token=[redacted]`,
     page: window.location.href
@@ -167,7 +167,7 @@ function connect() {
   ws.addEventListener("open", () => {
     opened = true;
     state.connected = true;
-    console.info("[codex-mobile:ws]", {
+    console.info("[codex-webui:ws]", {
       event: "open",
       elapsedMs: Math.round(performance.now() - startedAt)
     });
@@ -185,7 +185,7 @@ function connect() {
   });
   ws.addEventListener("close", () => {
     state.connected = false;
-    console.warn("[codex-mobile:ws]", {
+    console.warn("[codex-webui:ws]", {
       event: "close",
       opened,
       pendingRequests: state.pending.size,
@@ -203,7 +203,7 @@ function connect() {
     setTimeout(connect, 3000);
   });
   ws.addEventListener("error", () => {
-    console.warn("[codex-mobile:ws]", {
+    console.warn("[codex-webui:ws]", {
       event: "error",
       opened,
       readyState: ws.readyState,
@@ -442,7 +442,7 @@ function setupMobileViewport() {
     ].join(":");
     if (viewportLog !== lastViewportLog) {
       lastViewportLog = viewportLog;
-      console.debug("[codex-mobile:viewport]", {
+      console.debug("[codex-webui:viewport]", {
         innerHeight: Math.round(window.innerHeight),
         visualHeight: Math.round(visualHeight),
         visualOffsetTop: Math.round(visualOffsetTop),
@@ -521,11 +521,11 @@ function applyThemePreference(value) {
 }
 
 function setupBackButtonGuard() {
-  if (!window.history?.pushState || window.__codexMobileBackGuard) return;
-  window.__codexMobileBackGuard = true;
+  if (!window.history?.pushState || window.__codexWebUIBackGuard) return;
+  window.__codexWebUIBackGuard = true;
   setupBackSentinel();
   backGuardBaseUrl = cleanBackGuardUrl(window.location.href);
-  window.history.replaceState({ ...(window.history.state || {}), codexMobilePage: true }, "", backGuardBaseUrl);
+  window.history.replaceState({ ...(window.history.state || {}), codexWebUIPage: true }, "", backGuardBaseUrl);
   armBackButtonGuard();
   window.addEventListener("popstate", handleBackNavigation);
   window.addEventListener("hashchange", handleBackNavigation);
@@ -624,7 +624,7 @@ function pushBackGuardState() {
   const url = new URL(backGuardBaseUrl || window.location.href);
   backGuardSerial += 1;
   url.hash = `${BACK_GUARD_HASH_PREFIX}${backGuardSerial}`;
-  window.history.pushState({ codexMobileGuard: true, serial: backGuardSerial }, "", url.toString());
+  window.history.pushState({ codexWebUIGuard: true, serial: backGuardSerial }, "", url.toString());
 }
 
 function handleBackButton() {
@@ -1466,8 +1466,8 @@ function updateThreadUrl(threadId) {
   }
   const nextUrl = url.toString();
   backGuardBaseUrl = nextUrl;
-  window.history.replaceState({ ...(window.history.state || {}), codexMobilePage: true }, "", nextUrl);
-  if (window.__codexMobileBackGuard) window.setTimeout(armBackButtonGuard, 0);
+  window.history.replaceState({ ...(window.history.state || {}), codexWebUIPage: true }, "", nextUrl);
+  if (window.__codexWebUIBackGuard) window.setTimeout(armBackButtonGuard, 0);
 }
 
 
@@ -2346,7 +2346,7 @@ function logRpcDebug(event, detail) {
   const elapsedMs = Number(detail.elapsedMs || 0);
   const slow = event !== "send" && elapsedMs > slowRpcThresholdMs(detail.method);
   const logger = slow || event === "error" ? console.warn : console.debug;
-  logger.call(console, "[codex-mobile:rpc]", {
+  logger.call(console, "[codex-webui:rpc]", {
     event,
     requestId: detail.requestId,
     method: detail.method,
@@ -2413,7 +2413,7 @@ function summarizeThread(thread) {
 function logTurnDebug(event, threadId, extra = {}) {
   const diagnostics = state.turnDiagnostics.get(threadId);
   if (!diagnostics) {
-    console.debug("[codex-mobile:turn]", { event, threadId, ...extra });
+    console.debug("[codex-webui:turn]", { event, threadId, ...extra });
     return;
   }
 
@@ -2442,7 +2442,7 @@ function logTurnDebug(event, threadId, extra = {}) {
     ...extra
   };
   const logger = elapsedMs > 10000 && event !== "send-begin" ? console.warn : console.info;
-  logger.call(console, "[codex-mobile:turn]", payload);
+  logger.call(console, "[codex-webui:turn]", payload);
 
   if (event === "turn-completed") {
     state.turnDiagnostics.delete(threadId);
@@ -3047,9 +3047,9 @@ function logImageDebug(event, detail = {}) {
     page: window.location.href
   };
   if (event === "error" || event === "timeout") {
-    console.warn("[CodexMobile image]", payload);
+    console.warn("[CodexWebUI image]", payload);
   } else {
-    console.info("[CodexMobile image]", payload);
+    console.info("[CodexWebUI image]", payload);
   }
 }
 

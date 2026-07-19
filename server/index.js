@@ -24,10 +24,10 @@ const threadSettingsStorePath = path.join(dataDir, "thread-settings.json");
 
 const PORT = Number(process.env.PORT || 9526);
 const HOST = process.env.HOST || "0.0.0.0";
-const DEFAULT_CWD = process.env.CODEX_MOBILE_CWD || rootDir;
+const DEFAULT_CWD = process.env.CODEX_WEBUI_CWD || rootDir;
 const usesEnvironmentTokens = Boolean(
-  String(process.env.CODEX_MOBILE_TOKEN || "").trim()
-  || String(process.env.CODEX_MOBILE_TOKEN_SCOPES || "").trim()
+  String(process.env.CODEX_WEBUI_TOKEN || "").trim()
+  || String(process.env.CODEX_WEBUI_TOKEN_SCOPES || "").trim()
 );
 let tokenScopes = createTokenScopes();
 let defaultTokenScope = tokenScopes.values().next().value;
@@ -93,7 +93,7 @@ const INLINE_IMAGE_CACHE_CONTROL = "private, max-age=31536000, immutable";
 function resolveCodexCommand() {
   const appServerArgs = ["app-server", "--listen", "stdio://"];
   const explicitPath = String(
-    process.env.CODEX_MOBILE_CODEX_PATH || process.env.CODEX_CLI_PATH || ""
+    process.env.CODEX_WEBUI_CODEX_PATH || process.env.CODEX_CLI_PATH || ""
   ).trim();
 
   if (explicitPath) {
@@ -195,8 +195,8 @@ class CodexBridge {
 
       this.requestRaw("initialize", {
         clientInfo: {
-          name: "codex_mobile_web",
-          title: "Codex Mobile Web",
+          name: "codex_webui",
+          title: "Codex WebUI",
           version: "0.1.0"
         },
         capabilities: { experimentalApi: true }
@@ -318,7 +318,7 @@ function normalizeParams(method, params, scope = defaultTokenScope) {
       throw new Error("This token can only create sessions in the allowed folder.");
     }
     mkdirSync(next.cwd, { recursive: true });
-    next.serviceName = "codex_mobile_web";
+    next.serviceName = "codex_webui";
     if (!next.approvalPolicy) next.approvalPolicy = "on-request";
     if (!next.sandbox) next.sandbox = "workspace-write";
     normalizeReasoningEffortParam(next);
@@ -605,7 +605,7 @@ server.listen(PORT, HOST, async () => {
   const urls = getLanUrls(PORT);
   const banner = [
     "",
-    "Codex Mobile Web is running.",
+    "Codex WebUI is running.",
     ...formatTokenUrls("Local", [`http://localhost:${PORT}`]),
     ...formatTokenUrls("LAN", urls),
     "",
@@ -677,7 +677,7 @@ function logRpcServerDebug(event, message, scope, startedAt, bytesIn, response) 
   const bytesOut = Buffer.byteLength(JSON.stringify(response || {}));
   console.log(
     JSON.stringify({
-      tag: "codex-mobile:rpc",
+      tag: "codex-webui:rpc",
       event,
       method,
       requestId: message?.requestId,
@@ -765,15 +765,15 @@ function fileEtag(stat) {
 
 function createTokenScopes() {
   const scopes = new Map();
-  const envToken = String(process.env.CODEX_MOBILE_TOKEN || "").trim();
+  const envToken = String(process.env.CODEX_WEBUI_TOKEN || "").trim();
   if (envToken) {
-    addTokenScope(scopes, envToken, process.env.CODEX_MOBILE_THREAD_FILTER_CWD || "", {
+    addTokenScope(scopes, envToken, process.env.CODEX_WEBUI_THREAD_FILTER_CWD || "", {
       id: "env-default",
       label: "Environment token"
     });
   }
 
-  const rawScopes = String(process.env.CODEX_MOBILE_TOKEN_SCOPES || "").trim();
+  const rawScopes = String(process.env.CODEX_WEBUI_TOKEN_SCOPES || "").trim();
   if (rawScopes) {
     let index = 0;
     for (const entry of parseTokenScopeEntries(rawScopes)) {
@@ -793,7 +793,7 @@ function createTokenScopes() {
     }
   }
 
-  if (!scopes.size) throw new Error("No enabled Codex Mobile access tokens are configured.");
+  if (!scopes.size) throw new Error("No enabled Codex WebUI access tokens are configured.");
 
   return scopes;
 }
@@ -941,7 +941,7 @@ async function printAndWriteQrCodes(baseUrls) {
     const qrPath = path.join(qrDir, `${scope.id.replace(/[^a-zA-Z0-9_-]/g, "-")}.svg`);
     await QRCode.toFile(qrPath, url, { type: "svg", errorCorrectionLevel: "M", margin: 2 });
     console.log(`QR [${scope.id}]: ${qrPath}`);
-    if (first && process.env.CODEX_MOBILE_TERMINAL_QR !== "0") {
+    if (first && process.env.CODEX_WEBUI_TERMINAL_QR !== "0") {
       console.log(`\nScan to open ${scope.label}:\n`);
       console.log(await QRCode.toString(url, { type: "terminal", small: true, errorCorrectionLevel: "M" }));
       first = false;

@@ -1,4 +1,4 @@
-# Codex Mobile contributor guide
+# Codex WebUI contributor guide
 
 ## Setup requests
 
@@ -6,22 +6,22 @@ When a user asks to install or set up this repository:
 
 1. Verify Node.js 20+ and npm are available.
 2. Run `npm install`.
-3. Run `npm run setup` to verify Codex availability, initialize the local token store, and install the global `codexm` command. Do not install the token manager skill globally during setup.
+3. Run `npm run setup` to verify Codex availability, initialize the local token store, and install the global `codex-webui` command. Do not install the token manager skill globally during setup.
 4. Run `npm test`.
-5. Start with `npm start`, or on Windows use `powershell -ExecutionPolicy Bypass -File scripts/start-codex-mobile.ps1 -Foreground`.
+5. Start with `npm start`, or on Windows use `powershell -ExecutionPolicy Bypass -File scripts/start-codex-webui.ps1 -Foreground`.
 6. Report the LAN URL and tell the user to scan the terminal QR code. Never commit or broadly repeat its token-bearing URL.
-7. Report the absolute Codex Mobile repository path. Explicitly state that setup does not register a Codex local project, because the installation task may belong to another project. Tell the user to open the reported folder with `Ctrl+O` in the Codex desktop app.
+7. Report the absolute Codex WebUI repository path. Explicitly state that setup does not register a Codex local project, because the installation task may belong to another project. Tell the user to open the reported folder with `Ctrl+O` in the Codex desktop app.
 
-Do not require an OpenAI API key. Codex Mobile uses the local `codex app-server` and its existing Codex sign-in.
+Do not require an OpenAI API key. Codex WebUI uses the local `codex app-server` and its existing Codex sign-in.
 
 ## Runtime data
 
-Secrets, usage statistics, uploads, inline images, logs, and PID files belong in `CODEX_MOBILE_DATA_DIR`. Never move them into tracked files. The default is `%LOCALAPPDATA%\CodexMobile` on Windows and `$XDG_DATA_HOME/codex-mobile` (or `~/.local/share/codex-mobile`) elsewhere.
+Secrets, usage statistics, uploads, inline images, logs, and PID files belong in `CODEX_WEBUI_DATA_DIR`. Never move them into tracked files. The default is `%LOCALAPPDATA%\CodexWebUI` on Windows and `$XDG_DATA_HOME/codex-webui` (or `~/.local/share/codex-webui`) elsewhere.
 
 ## Token tasks
 
-Use the repository skill at `.agents/skills/codex-mobile-token-manager/SKILL.md`. Install it into the user's `$HOME/.agents/skills` directory with `npm run skill:install` only when the user explicitly requests global access from other projects. Do not edit `tokens.json` directly and do not expose raw tokens unless the user explicitly requests a URL or QR code.
+Use the repository skill at `.agents/skills/codex-webui-token-manager/SKILL.md`. Install it into the user's `$HOME/.agents/skills` directory with `npm run skill:install` only when the user explicitly requests global access from other projects. Do not edit `tokens.json` directly and do not expose raw tokens unless the user explicitly requests a URL or QR code.
 
 ## Validation
 
-Run `npm test` after source changes. Run `npm run check` for syntax-only verification. For server changes, use a temporary `CODEX_MOBILE_DATA_DIR` and non-default `PORT` so validation cannot alter the user's live tokens or service.
+Run `npm test` after source changes. Run `npm run check` for syntax-only verification. For server changes, use a temporary `CODEX_WEBUI_DATA_DIR` and non-default `PORT` so validation cannot alter the user's live tokens or service.

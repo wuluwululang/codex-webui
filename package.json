@@ -1,5 +1,5 @@
 {
-  "name": "codex-mobile",
+  "name": "codex-webui",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
@@ -8,14 +8,14 @@
   },
   "type": "module",
   "bin": {
-    "codexm": "scripts/codexm.js"
+    "codex-webui": "scripts/codex-webui.js"
   },
   "scripts": {
     "start": "node server/index.js",
     "setup": "node scripts/setup.js",
     "skill:install": "node scripts/install-skill.js",
     "token": "node scripts/token-manager.js",
-    "check": "node --check server/index.js && node --check server/skill-install.js && node --check scripts/codexm.js && node --check scripts/token-manager.js && node --check scripts/setup.js && node --check scripts/install-skill.js && node --check .agents/skills/codex-mobile-token-manager/scripts/token.js",
+    "check": "node --check public/app.js && node --check server/index.js && node --check server/skill-install.js && node --check scripts/codex-webui.js && node --check scripts/token-manager.js && node --check scripts/setup.js && node --check scripts/install-skill.js && node --check .agents/skills/codex-webui-token-manager/scripts/token.js",
     "test": "node --test"
   },
   "dependencies": {

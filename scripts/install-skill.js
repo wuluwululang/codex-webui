@@ -10,7 +10,7 @@ const result = installBundledSkill({
   repoRoot,
   dataDir: resolveDataDir(),
   skillsRoot: resolveUserSkillsRoot(),
-  force: process.env.CODEX_MOBILE_FORCE_SKILL_INSTALL === "1"
+  force: process.env.CODEX_WEBUI_FORCE_SKILL_INSTALL === "1"
 });
 
 console.log(`Skill ${result.status}: ${result.destinationDir}`);

@@ -11,7 +11,7 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDir, "..");
 
 function temporaryRoot() {
-  const dir = mkdtempSync(path.join(os.tmpdir(), "codex-mobile-skill-test-"));
+  const dir = mkdtempSync(path.join(os.tmpdir(), "codex-webui-skill-test-"));
   test.after(() => rmSync(dir, { recursive: true, force: true }));
   return dir;
 }
@@ -30,7 +30,7 @@ test("installs the bundled skill globally and runs its token wrapper from anothe
   const wrapper = path.join(result.destinationDir, "scripts", "token.js");
   const invoked = spawnSync(process.execPath, [wrapper, "list", "--json"], {
     cwd: root,
-    env: { ...process.env, CODEX_MOBILE_DATA_DIR: tokenDataDir },
+    env: { ...process.env, CODEX_WEBUI_DATA_DIR: tokenDataDir },
     encoding: "utf8"
   });
   assert.equal(invoked.status, 0, invoked.stderr);
@@ -51,11 +51,11 @@ test("refuses to overwrite an unmanaged skill with the same name", () => {
   writeFileSync(path.join(destination, "SKILL.md"), "unmanaged\n", "utf8");
   assert.throws(
     () => installBundledSkill({ repoRoot, dataDir, skillsRoot }),
-    /unmanaged codex-mobile-token-manager skill already exists/
+    /unmanaged codex-webui-token-manager skill already exists/
   );
 });
 
-test("setup installs codexm without installing the user skill", () => {
+test("setup installs codex-webui without installing the user skill", () => {
   const root = temporaryRoot();
   const dataDir = path.join(root, "data");
   const skillsRoot = path.join(root, "skills");
@@ -64,20 +64,25 @@ test("setup installs codexm without installing the user skill", () => {
     cwd: repoRoot,
     env: {
       ...process.env,
-      CODEX_MOBILE_DATA_DIR: dataDir,
-      CODEX_MOBILE_SKILLS_DIR: skillsRoot,
+      CODEX_WEBUI_DATA_DIR: dataDir,
+      CODEX_WEBUI_SKILLS_DIR: skillsRoot,
       NPM_CONFIG_PREFIX: npmPrefix
     },
     encoding: "utf8"
   });
   assert.equal(setup.status, 0, setup.stderr);
-  assert.match(setup.stdout, /Command installed: codexm/);
+  assert.match(setup.stdout, /Command installed: codex-webui/);
   assert.match(setup.stdout, /Global skill: not installed/);
   assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), false);
   const commandPath = process.platform === "win32"
-    ? path.join(npmPrefix, "codexm.cmd")
-    : path.join(npmPrefix, "bin", "codexm");
+    ? path.join(npmPrefix, "codex-webui.cmd")
+    : path.join(npmPrefix, "bin", "codex-webui");
   assert.equal(existsSync(commandPath), true);
+  const legacyCommandName = ["codex", "m"].join("");
+  const legacyCommandPath = process.platform === "win32"
+    ? path.join(npmPrefix, `${legacyCommandName}.cmd`)
+    : path.join(npmPrefix, "bin", legacyCommandName);
+  assert.equal(existsSync(legacyCommandPath), false);
 });
 
 test("skill install command opts into the user skill", () => {
@@ -88,8 +93,8 @@ test("skill install command opts into the user skill", () => {
     cwd: repoRoot,
     env: {
       ...process.env,
-      CODEX_MOBILE_DATA_DIR: dataDir,
-      CODEX_MOBILE_SKILLS_DIR: skillsRoot
+      CODEX_WEBUI_DATA_DIR: dataDir,
+      CODEX_WEBUI_SKILLS_DIR: skillsRoot
     },
     encoding: "utf8"
   });
@@ -98,12 +103,12 @@ test("skill install command opts into the user skill", () => {
   assert.equal(existsSync(path.join(skillsRoot, MANAGED_SKILL_NAME, "SKILL.md")), true);
 });
 
-test("codexm runs token commands from another project directory", () => {
+test("codex-webui runs token commands from another project directory", () => {
   const root = temporaryRoot();
   const tokenDataDir = path.join(root, "token-data");
-  const invoked = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "codexm.js"), "list", "--json"], {
+  const invoked = spawnSync(process.execPath, [path.join(repoRoot, "scripts", "codex-webui.js"), "list", "--json"], {
     cwd: root,
-    env: { ...process.env, CODEX_MOBILE_DATA_DIR: tokenDataDir },
+    env: { ...process.env, CODEX_WEBUI_DATA_DIR: tokenDataDir },
     encoding: "utf8"
   });
   assert.equal(invoked.status, 0, invoked.stderr);

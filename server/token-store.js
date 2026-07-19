@@ -6,12 +6,12 @@ import path from "node:path";
 export const TOKEN_STORE_VERSION = 1;
 
 export function resolveDataDir(env = process.env, platform = process.platform) {
-  const explicit = String(env.CODEX_MOBILE_DATA_DIR || "").trim();
+  const explicit = String(env.CODEX_WEBUI_DATA_DIR || "").trim();
   if (explicit) return path.resolve(explicit);
   if (platform === "win32") {
-    return path.join(env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local"), "CodexMobile");
+    return path.join(env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local"), "CodexWebUI");
   }
-  return path.join(env.XDG_DATA_HOME || path.join(os.homedir(), ".local", "share"), "codex-mobile");
+  return path.join(env.XDG_DATA_HOME || path.join(os.homedir(), ".local", "share"), "codex-webui");
 }
 
 export function tokenStorePath(dataDir = resolveDataDir()) {
@@ -23,7 +23,7 @@ export function usageStorePath(dataDir = resolveDataDir()) {
 }
 
 export function generateAccessToken() {
-  return `cm_${randomBytes(24).toString("base64url")}`;
+  return `cw_${randomBytes(24).toString("base64url")}`;
 }
 
 export function hashToken(token) {

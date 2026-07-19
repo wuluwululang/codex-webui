@@ -19,7 +19,7 @@ import { readUsageStore, resetUsage } from "../server/usage-store.js";
 
 const args = process.argv.slice(2);
 const command = args.shift() || "help";
-const commandName = String(process.env.CODEX_MOBILE_COMMAND || "node scripts/token-manager.js");
+const commandName = String(process.env.CODEX_WEBUI_COMMAND || "node scripts/token-manager.js");
 const dataDir = resolveDataDir();
 
 try {
@@ -235,7 +235,7 @@ function formatBytes(value) {
 }
 
 function printHelp() {
-  console.log(`Codex Mobile token manager
+  console.log(`Codex WebUI token manager
 
 Usage:
   ${commandName} list [--json]

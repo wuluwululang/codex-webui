@@ -8,22 +8,38 @@ import {
   findTokenRecord,
   publicTokenRecord,
   readTokenStore,
+  resolveDataDir,
   tokenStorePath,
   writeTokenStore
 } from "../server/token-store.js";
 import { readUsageStore, resetUsage, UsageTracker } from "../server/usage-store.js";
 
 function temporaryDataDir() {
-  const dir = mkdtempSync(path.join(os.tmpdir(), "codex-mobile-test-"));
+  const dir = mkdtempSync(path.join(os.tmpdir(), "codex-webui-test-"));
   test.after(() => rmSync(dir, { recursive: true, force: true }));
   return dir;
 }
+
+test("uses Codex WebUI data directories and environment variable names", () => {
+  assert.equal(
+    resolveDataDir({ LOCALAPPDATA: "C:\\LocalData" }, "win32"),
+    path.join("C:\\LocalData", "CodexWebUI")
+  );
+  assert.equal(
+    resolveDataDir({ XDG_DATA_HOME: "/var/data" }, "linux"),
+    path.join("/var/data", "codex-webui")
+  );
+  assert.equal(
+    resolveDataDir({ CODEX_WEBUI_DATA_DIR: "./custom-data" }, "linux"),
+    path.resolve("./custom-data")
+  );
+});
 
 test("creates one default token without exposing it through public records", () => {
   const dataDir = temporaryDataDir();
   const store = readTokenStore(dataDir);
   assert.equal(store.tokens.length, 1);
-  assert.match(store.tokens[0].token, /^cm_[A-Za-z0-9_-]{32}$/);
+  assert.match(store.tokens[0].token, /^cw_[A-Za-z0-9_-]{32}$/);
   const publicRecord = publicTokenRecord(store.tokens[0]);
   assert.equal("token" in publicRecord, false);
   assert.equal(publicRecord.fingerprint.length, 12);

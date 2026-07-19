@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex WebUI Token Manager"
+  short_description: "Manage access tokens, QR codes, and per-token usage"
+  default_prompt: "Use $codex-webui-token-manager to create a scoped web access token and show its QR code."

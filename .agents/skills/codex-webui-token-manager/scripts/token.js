@@ -15,7 +15,7 @@ if (existsSync(installPath)) {
 
 const tokenManager = path.join(repoRoot, "scripts", "token-manager.js");
 if (!existsSync(tokenManager)) {
-  console.error(`Codex Mobile token manager was not found at ${tokenManager}. Re-run npm run setup in the repository.`);
+  console.error(`Codex WebUI token manager was not found at ${tokenManager}. Re-run npm run setup in the repository.`);
   process.exit(1);
 }
 

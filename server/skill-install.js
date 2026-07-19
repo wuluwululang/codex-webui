@@ -12,10 +12,10 @@ import {
 import os from "node:os";
 import path from "node:path";
 
-export const MANAGED_SKILL_NAME = "codex-mobile-token-manager";
+export const MANAGED_SKILL_NAME = "codex-webui-token-manager";
 
 export function resolveUserSkillsRoot(env = process.env, homeDir = os.homedir()) {
-  const explicit = String(env.CODEX_MOBILE_SKILLS_DIR || "").trim();
+  const explicit = String(env.CODEX_WEBUI_SKILLS_DIR || "").trim();
   return explicit ? path.resolve(explicit) : path.join(homeDir, ".agents", "skills");
 }
 
@@ -58,7 +58,7 @@ export function installBundledSkill({
     if (!managedDestination && !skillFilesMatch(sourceDir, destinationDir) && !force) {
       throw new Error(
         `An unmanaged ${MANAGED_SKILL_NAME} skill already exists at ${destinationDir}. `
-        + "Move it aside or set CODEX_MOBILE_FORCE_SKILL_INSTALL=1 to replace matching files."
+        + "Move it aside or set CODEX_WEBUI_FORCE_SKILL_INSTALL=1 to replace matching files."
       );
     }
     status = managedDestination ? "updated" : "adopted";

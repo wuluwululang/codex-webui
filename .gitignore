@@ -1,9 +1,9 @@
 node_modules/
 *.log
 *.pid
-.codex-mobile-uploads/
-.codex-mobile-inline-images/
-.codex-mobile-thread-settings.json
+.codex-*-uploads/
+.codex-*-inline-images/
+.codex-*-thread-settings.json
 last-scoped-token.txt
 .env
 .DS_Store

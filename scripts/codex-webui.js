@@ -9,12 +9,12 @@ const tokenManager = path.join(scriptDir, "token-manager.js");
 
 const result = spawnSync(process.execPath, [tokenManager, ...process.argv.slice(2)], {
   cwd: repoRoot,
-  env: { ...process.env, CODEX_MOBILE_COMMAND: "codexm" },
+  env: { ...process.env, CODEX_WEBUI_COMMAND: "codex-webui" },
   stdio: "inherit"
 });
 
 if (result.error) {
-  console.error(`Unable to run codexm: ${result.error.message}`);
+  console.error(`Unable to run codex-webui: ${result.error.message}`);
   process.exit(1);
 }
 

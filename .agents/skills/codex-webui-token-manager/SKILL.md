@@ -1,9 +1,9 @@
 ---
-name: codex-mobile-token-manager
-description: Manage Codex Mobile access tokens, folder scopes, LAN access URLs, QR codes, and per-token access statistics. Use when a user asks to add, list, rotate, disable, enable, or delete a Codex Mobile token; restrict a token to one or more project folders; generate a phone-scannable QR code; or inspect/reset token usage.
+name: codex-webui-token-manager
+description: Manage Codex WebUI access tokens, folder scopes, LAN access URLs, QR codes, and per-token access statistics. Use when a user asks to add, list, rotate, disable, enable, or delete a Codex WebUI token; restrict a token to one or more project folders; generate a phone-scannable QR code; or inspect/reset token usage.
 ---
 
-# Codex Mobile Token Manager
+# Codex WebUI Token Manager
 
 Run the bundled wrapper with Node.js. Resolve `<skill-dir>` to the directory containing this `SKILL.md`:
 
@@ -11,14 +11,14 @@ Run the bundled wrapper with Node.js. Resolve `<skill-dir>` to the directory con
 node <skill-dir>/scripts/token.js <command> [arguments]
 ```
 
-The wrapper locates the installed Codex Mobile repository, so it works from any project directory. Do not edit `tokens.json` directly.
+The wrapper locates the installed Codex WebUI repository, so it works from any project directory. Do not edit `tokens.json` directly.
 
 ## Safety
 
 - Treat access URLs and QR codes as secrets because they contain a bearer token.
 - Never paste token secrets into source files, commits, issues, or chat unless the user explicitly asks to reveal one.
 - Use `list` and `stats` for routine inspection; they show fingerprints, not secrets.
-- Explain that usage means Codex Mobile access traffic, not OpenAI model-token billing.
+- Explain that usage means Codex WebUI access traffic, not OpenAI model-token billing.
 - Require the user's explicit intent before destructive `remove` or `reset-stats` commands; the CLI also requires `--yes`.
 
 ## Commands
